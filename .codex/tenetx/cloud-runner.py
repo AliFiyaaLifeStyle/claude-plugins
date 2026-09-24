@@ -11,10 +11,32 @@ def _breadcrumb(reason):
     except Exception:
         pass
 
+def _apply_explicit_env():
+    """Local/ngrok path: TENETX_URL + ORG + VMCP_TOKEN, no packed secret.
+
+    A packed TENETX_CODEX_TOKEN minted against sanketlocal.local.tenetx.ai
+    embeds a host Codex Cloud cannot reach. Operators can set the three
+    values separately and point TENETX_URL at an ngrok (or staging) origin.
+    """
+    url = str(os.environ.get("TENETX_URL") or "").strip().rstrip("/")
+    org = str(os.environ.get("TENETX_ORG") or "").strip()
+    token = str(os.environ.get("TENETX_VMCP_TOKEN") or "").strip()
+    if not url or not org or not token:
+        return False
+    if not url.lower().startswith("https://") and not url.lower().startswith("http://"):
+        return False
+    os.environ.update({
+        "TENETX_URL": url,
+        "TENETX_ORG": org,
+        "TENETX_VMCP_TOKEN": token,
+        "TENETX_CLIENT_SURFACE": "codex-cloud",
+        "TENETX_CODEX_PERMISSION_ASK_MODE": "defer",
+    })
+    return True
+
 def _apply_secret():
     raw = str(os.environ.get("TENETX_CODEX_TOKEN") or "").strip()
     if not raw.startswith("txcc1."):
-        _breadcrumb("codex_cloud_token_missing_or_invalid")
         return False
     try:
         blob = raw.split(".", 1)[1]
@@ -28,7 +50,10 @@ def _apply_secret():
     return True
 
 def main():
-    if not _apply_secret(): return 0
+    # Packed secret wins when both are set, matching Claude Code cloud.
+    if not _apply_secret() and not _apply_explicit_env():
+        _breadcrumb("codex_cloud_token_missing_or_invalid")
+        return 0
     guard = pathlib.Path(__file__).with_name("tenetx-guard.py")
     if not guard.is_file():
         _breadcrumb("codex_cloud_guard_missing")
