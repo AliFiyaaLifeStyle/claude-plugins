@@ -97,14 +97,20 @@ def _breadcrumb(reason: str, **fields: object) -> None:
         pass
 
 
+def _emit_allow() -> None:
+    sys.stdout.write('{"permission":"allow"}\n')
+    sys.stdout.flush()
+
+
 def _fail_open(reason: str, **fields: object) -> int:
     """Allow the action. Cursor failClosed hooks treat empty stdout as a block."""
     _breadcrumb(reason, **fields)
     detail = fields.get("detail") or reason
     sys.stderr.write(f"[tenetx] Cursor cloud hook skipped: {detail}\n")
+    sys.stderr.flush()
     # preToolUse / beforeSubmitPrompt require a permission object even when we
     # intentionally fail open; empty output + failClosed bricks the cloud VM.
-    sys.stdout.write('{"permission":"allow"}\n')
+    _emit_allow()
     return 0
 
 
@@ -363,7 +369,7 @@ def main() -> int:
         # Laptop / env-setup turns without CURSOR_CODE_REMOTE: do not enforce
         # here (local install owns the laptop). Still emit allow so failClosed
         # project hooks do not brick Cursor Cloud Agents setup.
-        sys.stdout.write('{"permission":"allow"}\n')
+        _emit_allow()
         return 0
     invalid = _apply_bundled_secret()
     if invalid:
@@ -412,11 +418,12 @@ def main() -> int:
             # beats failing open — but the staleness must not be silent.
             _breadcrumb("guard_refresh_failed_using_cached_guard", path=guard)
     try:
-        # sys.argv carries --tenetx-response-timeout-seconds, which the guard
-        # needs to use its full response budget.
+        # -u + capture: Cloud Agents often run hooks with a non-TTY stdout, so
+        # the guard's block-buffered writes never reach Cursor without this.
         result = subprocess.run(
-            [sys.executable, guard, *sys.argv[1:]],
+            [sys.executable, "-u", guard, *sys.argv[1:]],
             input=payload,
+            capture_output=True,
             timeout=GUARD_TIMEOUT_SECONDS,
             check=False,
         )
@@ -427,7 +434,22 @@ def main() -> int:
             error=type(exc).__name__,
             detail="guard exec failed",
         )
-    return int(result.returncode)
+    if result.stderr:
+        sys.stderr.buffer.write(result.stderr)
+        sys.stderr.buffer.flush()
+    if result.stdout:
+        sys.stdout.buffer.write(result.stdout)
+        sys.stdout.buffer.flush()
+        return int(result.returncode)
+    # Guard produced no stdout. Exit 2 still means deny; anything else must
+    # emit allow or failClosed bricks the agent.
+    if result.returncode == 2:
+        sys.stdout.write('{"permission":"deny"}\n')
+        sys.stdout.flush()
+        return 2
+    _breadcrumb("guard_empty_stdout", path=guard, exit=result.returncode)
+    _emit_allow()
+    return 0
 
 
 if __name__ == "__main__":
