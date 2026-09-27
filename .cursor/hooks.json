@@ -2,126 +2,126 @@
   "hooks": {
     "afterAgentResponse": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "afterAgentThought": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "afterFileEdit": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "afterMCPExecution": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "afterShellExecution": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "beforeMCPExecution": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "beforeReadFile": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "beforeShellExecution": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "beforeSubmitPrompt": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "failClosed": true,
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120,
+        "failClosed": true
       }
     ],
     "postToolUse": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "matcher": ".*",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120,
+        "matcher": ".*"
       }
     ],
     "postToolUseFailure": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "matcher": ".*",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120,
+        "matcher": ".*"
       }
     ],
     "preCompact": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "preToolUse": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
+        "timeout": 120,
         "failClosed": true,
-        "matcher": ".*",
-        "timeout": 90,
-        "type": "command"
+        "matcher": ".*"
       }
     ],
     "sessionStart": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "stop": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "subagentStart": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ],
     "subagentStop": [
       {
+        "type": "command",
         "command": "python3 \"${CURSOR_PROJECT_DIR:-.}/.cursor/tenetx-guard.py\" --tenetx-response-timeout-seconds=75",
-        "timeout": 90,
-        "type": "command"
+        "timeout": 120
       }
     ]
   },

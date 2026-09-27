@@ -54,10 +54,12 @@ BUNDLED_SECRET_NAME = "TENETX_CURSOR_TOKEN"
 BUNDLED_SECRET_PREFIX = "txcu1."
 GUARD_TTL_SECONDS = 3600
 # Keep download + guard under the timeout in .cursor/hooks.json.
-DOWNLOAD_TIMEOUT_SECONDS = 3
+DOWNLOAD_TIMEOUT_SECONDS = 15
 GUARD_TIMEOUT_SECONDS = 85
 BREADCRUMB_MAX_LINES = 200
 LOOPBACK_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
+# ngrok free tier returns an HTML interstitial unless this header is set.
+NGROK_SKIP_BROWSER_WARNING = "ngrok-skip-browser-warning"
 
 
 def _env(name: str) -> str:
@@ -256,6 +258,7 @@ def _download_guard(url: str, org: str, token: str, dest: str) -> str | None:
         headers={
             "Authorization": f"Bearer {token}",
             "User-Agent": USER_AGENT,
+            NGROK_SKIP_BROWSER_WARNING: "1",
         },
         method="GET",
     )
