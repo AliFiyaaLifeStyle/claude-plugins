@@ -98,9 +98,13 @@ def _breadcrumb(reason: str, **fields: object) -> None:
 
 
 def _fail_open(reason: str, **fields: object) -> int:
+    """Allow the action. Cursor failClosed hooks treat empty stdout as a block."""
     _breadcrumb(reason, **fields)
     detail = fields.get("detail") or reason
     sys.stderr.write(f"[tenetx] Cursor cloud hook skipped: {detail}\n")
+    # preToolUse / beforeSubmitPrompt require a permission object even when we
+    # intentionally fail open; empty output + failClosed bricks the cloud VM.
+    sys.stdout.write('{"permission":"allow"}\n')
     return 0
 
 
@@ -356,8 +360,10 @@ def _tag_payload(payload: bytes) -> bytes:
 def main() -> int:
     raw_payload = sys.stdin.buffer.read()
     if not _is_cloud_session():
-        # A laptop clone: the local install (if any) is the guard. Not a
-        # failure, so no breadcrumb.
+        # Laptop / env-setup turns without CURSOR_CODE_REMOTE: do not enforce
+        # here (local install owns the laptop). Still emit allow so failClosed
+        # project hooks do not brick Cursor Cloud Agents setup.
+        sys.stdout.write('{"permission":"allow"}\n')
         return 0
     invalid = _apply_bundled_secret()
     if invalid:
