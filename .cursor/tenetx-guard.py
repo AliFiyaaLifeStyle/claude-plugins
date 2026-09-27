@@ -344,8 +344,12 @@ def _apply_bundled_secret() -> str | None:
     token = str(payload.get("t") or "").strip()
     if not url or not org or not token:
         return "cursor_token_invalid"
-    os.environ["TENETX_URL"] = url
-    os.environ["TENETX_ORG"] = org
+    # Explicit TENETX_URL / TENETX_ORG win so ngrok (or any public tunnel) can
+    # reuse a dashboard-minted token that baked in *.local.tenetx.ai.
+    if not _env("TENETX_URL"):
+        os.environ["TENETX_URL"] = url
+    if not _env("TENETX_ORG"):
+        os.environ["TENETX_ORG"] = org
     os.environ["TENETX_VMCP_TOKEN"] = token
     return None
 
