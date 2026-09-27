@@ -7,8 +7,10 @@ this file is committed as `.cursor/tenetx-guard.py` and wired there. It
 downloads the Cursor guard from the control plane, verifies it, then execs
 it with the same stdin and arguments.
 
-It only acts when CURSOR_CODE_REMOTE=true. On a laptop that clones the same
-repo it drains stdin and exits 0, so the local install stays the only guard.
+It acts when CURSOR_CODE_REMOTE=true, or when TenetX cloud credentials are
+injected (Cloud Agent VMs sometimes omit CURSOR_CODE_REMOTE). On a laptop
+clone without those secrets it emits allow and exits, so the local install
+stays the only guard.
 
 Required environment variable (the cloud environment's settings):
   TENETX_CURSOR_TOKEN  one value from the TenetX Cloud tab (origin, org, token)
@@ -293,14 +295,26 @@ def _download_guard(url: str, org: str, token: str, dest: str) -> str | None:
     return _write_guard(body, dest)
 
 
-def _is_cloud_session() -> bool:
-    """Cursor sets CURSOR_CODE_REMOTE=true for remote/cloud workspaces.
+def _has_cloud_credentials() -> bool:
+    if _env(BUNDLED_SECRET_NAME):
+        return True
+    return bool(_env("TENETX_URL") and _env("TENETX_ORG") and _token())
 
-    TENETX_CURSOR_CLOUD_FORCE=1 lets a canary run the cloud path on a laptop.
+
+def _is_cloud_session() -> bool:
+    """True when this hook should download and run the Cursor guard.
+
+    Cursor docs document CURSOR_CODE_REMOTE for remote workspaces. Cloud Agent
+    VMs have been observed to run project hooks without that variable set, so
+    we also treat injected TenetX cloud credentials as a cloud session. Laptop
+    clones without those secrets still no-op (local install owns the laptop).
     """
     if _env("TENETX_CURSOR_CLOUD_FORCE") == "1":
         return True
-    return _env("CURSOR_CODE_REMOTE").lower() == "true"
+    if _env("CURSOR_CODE_REMOTE").lower() == "true":
+        return True
+    # Cloud Agents sometimes omit CURSOR_CODE_REMOTE; credentials are the signal.
+    return _has_cloud_credentials()
 
 
 def _apply_bundled_secret() -> str | None:
